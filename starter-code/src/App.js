@@ -11,8 +11,8 @@ class App extends Component {
   state = {
     users: UsersData,
     search: '',
-    student: false,
-    teacher: false,
+    student: true,
+    teacher: true,
     campus: ''
 }
 
@@ -21,61 +21,78 @@ handleSearch = event => {
     console.log(event.target.value);
     this.setState({
       [event.target.name]: event.target.value,
-      users: UsersData.filter((user) => {
-        return (
-          user.firstName
-          .includes(event.target.value) 
-          ||
-          user.lastName
-          .includes(event.target.value)
-        );
-      }),
+      // users: UsersData.filter((user) => {
+      //   return (
+      //     user.firstName
+      //     .includes(event.target.value) 
+      //     ||
+      //     user.lastName
+      //     .includes(event.target.value)
+      //   );
+      // }),
     });
 }
 
 changeHandlerTeacher = event => {
+  console.log(event.target.checked);
   this.setState({
-    teacher: event.target.checked,
-    users: UsersData.filter((user) => {
-      return (
-        user.role === "teacher" && event.target.checked
-      );
-    }),
+    [event.target.name]: event.target.checked,
+    // users: UsersData.filter((user) => {
+    //   return (
+    //     user.role === "teacher" && event.target.checked
+    //   );
+    // }),
   });
 }
 
 changeHandlerStudent = event => {
+  console.log(event.target.checked);
   this.setState({
-    student: event.target.checked,
-    users: UsersData.filter((user) => {
-      return (
-        (user.role === "student" && event.target.checked)
-      );
-    }),
+    [event.target.name]: event.target.checked,
+    // users: UsersData.filter((user) => {
+    //   return (
+    //     (user.role === "student" && event.target.checked)
+    //   );
+    // }),
   });
 }
 
 changeHandlerCampus = (event) => {
-  console.log(this.state.value)
   this.setState({
-      campus: event.target.option,
-      users:UsersData.filter((user) =>{
-          return user.campus === event.target.value
-      })
+    [event.target.name]: event.target.value,
+      // users:UsersData.filter((user) =>{
+      //     return user.campus === event.target.value
+      // })
   }
   );
 }
 
   render() {
+    let filtered = this.state.users.filter(user => {
+      // console.log(user.firstName)
+      // console.log(this.state.search)
+      if(this.state.student){
+        return user.role.includes('student') && (user.firstName.includes(this.state.search) || user.lastName.includes(this.state.search))
+      }
 
+      if(this.state.teacher){
+        return user.role.includes('teacher')
+      }
+      console.log(this.state.campus)
+      if(this.state.campus){
+        console.log(this.state.campus)
+        return user.campus === this.state.campus
+      }
+
+    })
     return (
       <div className="App">
       <h1>IronBook</h1>
-      <input type="checkbox" name="check" onChange={this.changeHandlerStudent} />
+      <input type="checkbox" name="student" checked={this.state.student} onChange={this.changeHandlerStudent} />
         <label htmlFor="">Student</label>
-        <input type="checkbox" name="check" onChange={this.changeHandlerTeacher} />
+        <input type="checkbox" name="teacher" checked={this.state.teacher} onChange={this.changeHandlerTeacher} />
         <label htmlFor="">Teacher</label>
-        <select value={this.state.campus} onChange={this.changeHandlerCampus}>
+        <select name='campus' value={this.state.campus} onChange={this.changeHandlerCampus}>
         <option value="Berlin">Berlin</option>
         <option value="Lisbon">Lisbon</option>
         <option value="Paris">Paris</option>
@@ -85,7 +102,7 @@ changeHandlerCampus = (event) => {
         type="search"
         name="search"
         id="search"
-        value={this.state.name}
+        value={this.state.search}
         onChange={this.handleSearch}
 
         />
@@ -99,9 +116,8 @@ changeHandlerCampus = (event) => {
             </tr>
         </thead>
         <tbody>
-       {this.state.users.map((user) =>        
+       {filtered.map((user) =>        
        (
-      
             <Users id={user.id} linkedin={user.linkedin}  firstName={user.firstName} lastName={user.lastName} campus={user.campus} role={user.role} />
       )
       )}
